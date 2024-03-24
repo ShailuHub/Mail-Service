@@ -3,29 +3,44 @@ import FormTitle from "./FormTitle";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { AiOutlineMail } from "react-icons/ai";
 import FormButton from "./FormButton";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Axios from "axios";
 import { useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { authAction } from "../../store/store";
 
 const baseUrl = "http://localhost:3000";
 
 const SignIn = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const emailRef = useRef();
   const passwordRef = useRef();
   const handleSignInForm = async (event) => {
     event.preventDefault();
-    const email = emailRef.current.value;
-    const password = passwordRef.current.value;
-    console.log(email, password);
     try {
+      const email = emailRef.current.value;
+      const password = passwordRef.current.value;
       const url = `${baseUrl}/api/user/signin`;
       const res = await Axios.post(url, {
         email,
         password,
       });
-      console.log(res);
+      const { message, token, user } = res.data;
+
+      dispatch(
+        authAction.signIn({
+          token,
+          username: user.username,
+          email: user.email,
+        })
+      );
+      navigate("/auth/inbox");
+      console.log(message);
     } catch (error) {
       console.log(error);
+      emailRef.current.value = "";
+      passwordRef.current.value = "";
     }
   };
   return (

@@ -1,7 +1,8 @@
-function MailForm() {
+const MailForm = ({ reference }) => {
+  const { toRef, subjectRef } = reference;
   return (
     <section className="max-w-screen-lg mx-auto">
-      <form className="">
+      <form>
         <div className="flex space-x-2 flex-1 border-b-2 border-gray-900  bg-gray-700">
           <label htmlFor="email" className="py-2 px-4 text-lg text-firstColor">
             To
@@ -11,6 +12,7 @@ function MailForm() {
             name="email"
             type="email"
             className="w-full text-md p-2  bg-gray-700 outline-none"
+            ref={toRef}
           />
         </div>
         <div className="flex space-x-2 flex-1 border-b-2   bg-gray-700">
@@ -24,12 +26,13 @@ function MailForm() {
             id="subject"
             name="subject"
             type="text"
+            ref={subjectRef}
             className="w-full text-md p-2  bg-gray-700 outline-none"
           />
         </div>
       </form>
     </section>
   );
-}
+};
 
 export default MailForm;

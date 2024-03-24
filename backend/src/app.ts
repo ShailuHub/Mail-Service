@@ -3,7 +3,7 @@ import cors from "cors";
 dotenv.config();
 import express from "express";
 import bodyParser from "body-parser";
-import { authRouter } from "./routes/index";
+import { authRouter, mailRouter } from "./routes/index";
 import sequelize from "./database/database";
 const app = express();
 
@@ -15,6 +15,7 @@ app.use(cors());
 
 // Routes
 app.use("/api/user", authRouter);
+app.use("/api/mail", mailRouter);
 
 const PORT: number = Number(process.env.PORT) || 3000;
 const startServer = async () => {

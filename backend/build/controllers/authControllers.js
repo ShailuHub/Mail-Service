@@ -13,44 +13,48 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.signin_post = exports.signup_post = void 0;
-const authModal_1 = require("../modals/authModal");
-const bcrypt_1 = __importDefault(require("bcrypt"));
-const sendError_1 = __importDefault(require("../utils/sendError"));
+const authModel_1 = require("../modals/authModel");
+const responseHelper_1 = require("../utils/responseHelper");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const signup_post = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, email, password } = req.body;
     try {
-        const user = yield authModal_1.User.findOne({ where: { email: email } });
+        const user = yield authModel_1.User.findOne({ where: { email: email } });
         if (user)
-            return (0, sendError_1.default)(res, 400, "Email already exist", "");
-        yield authModal_1.User.create({ username, email, password });
-        (0, sendError_1.default)(res, 200, "", "User is sucessfully created");
+            return (0, responseHelper_1.sendError)(res, 400, "Email already exist");
+        yield authModel_1.User.create({ username, email, password });
+        (0, responseHelper_1.sendMessage)(res, 200, "User is sucessfully created");
     }
     catch (error) {
         console.log(error);
         const errorMessage = error.message;
-        (0, sendError_1.default)(res, 500, errorMessage, "");
+        (0, responseHelper_1.sendError)(res, 500, errorMessage);
     }
 });
 exports.signup_post = signup_post;
 const signin_post = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     try {
-        const user = yield authModal_1.User.findOne({ where: { email: email } });
+        const user = yield authModel_1.User.findOne({ where: { email: email } });
         if (!user)
-            return res.status(400).json({ error: "Invalid email" });
-        // The first paremeter must be plain text and second parament will be hashed password
-        const isMatched = yield bcrypt_1.default.compare(password, user.password);
+            return (0, responseHelper_1.sendError)(res, 400, "Invalid email or password");
+        const isMatched = yield authModel_1.User.comparePassword(user, password);
         if (!isMatched)
-            return res.status(400).json({ error: "Invalid email or password" });
-        if (isMatched) {
-            console.log("User is sucessfully logged in");
-            return res.status(200).json({ error: "Logged in successfully" });
-        }
+            return (0, responseHelper_1.sendError)(res, 400, "Invalid email or password");
+        const secret = process.env.JWT_SECRET_KEY;
+        const token = jsonwebtoken_1.default.sign({ userId: user.userId, email: email }, secret, {
+            expiresIn: "1hr",
+        });
+        return res.status(200).json({
+            message: "Logged in successfully",
+            token: token,
+            user,
+        });
     }
     catch (error) {
         console.log(error);
         const errorMessage = error.message;
-        (0, sendError_1.default)(res, 500, errorMessage, "");
+        (0, responseHelper_1.sendError)(res, 500, errorMessage);
     }
 });
 exports.signin_post = signin_post;

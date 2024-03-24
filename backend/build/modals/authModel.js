@@ -16,6 +16,7 @@ exports.User = void 0;
 const sequelize_1 = require("sequelize");
 const database_1 = __importDefault(require("../database/database"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const mailModel_1 = require("./mailModel");
 // UserModel class
 class UserModel extends sequelize_1.Model {
     // Define your custom static method
@@ -68,6 +69,11 @@ UserModel.init({
         },
     },
 }, { sequelize: database_1.default, modelName: "User" });
+// Association of user model with mail model
+UserModel.hasMany(mailModel_1.Mail, { foreignKey: "senderId", as: "sentMails" });
+UserModel.hasMany(mailModel_1.Mail, { foreignKey: "receiverId", as: "recievedMails" });
+mailModel_1.Mail.belongsTo(UserModel, { foreignKey: "senderId", as: "sender" });
+mailModel_1.Mail.belongsTo(UserModel, { foreignKey: "receiverId", as: "reciever" });
 // Before creation of new User Middleware
 UserModel.beforeCreate((user) => __awaiter(void 0, void 0, void 0, function* () {
     try {

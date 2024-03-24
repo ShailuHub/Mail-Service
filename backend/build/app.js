@@ -27,6 +27,7 @@ app.use(body_parser_1.default.json());
 app.use((0, cors_1.default)());
 // Routes
 app.use("/api/user", index_1.authRouter);
+app.use("/api/mail", index_1.mailRouter);
 const PORT = Number(process.env.PORT) || 3000;
 const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
     try {

@@ -1,6 +1,7 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../database/database";
-import bcrypt, { hash } from "bcrypt";
+import bcrypt from "bcrypt";
+import { Mail } from "./mailModel";
 
 // UserModel class
 class UserModel extends Model {
@@ -10,6 +11,22 @@ class UserModel extends Model {
   public password!: string;
   public createdAt!: Date;
   public updatedAt!: Date;
+
+  // Define your custom static method
+  static async comparePassword(
+    user: UserModel,
+    password: string
+  ): Promise<boolean> {
+    try {
+      // Implement the comparison logic here
+      if (!user) return false;
+      const isMatched = await bcrypt.compare(password, user.password);
+      if (isMatched) return true;
+      return false;
+    } catch (error) {
+      throw new Error("Error comparing passwords");
+    }
+  }
 }
 
 UserModel.init(
@@ -47,7 +64,13 @@ UserModel.init(
   { sequelize, modelName: "User" }
 );
 
-//Before creation of new User Middleware
+// Association of user model with mail model
+UserModel.hasMany(Mail, { foreignKey: "senderId", as: "sentMails" });
+UserModel.hasMany(Mail, { foreignKey: "receiverId", as: "recievedMails" });
+Mail.belongsTo(UserModel, { foreignKey: "senderId", as: "sender" });
+Mail.belongsTo(UserModel, { foreignKey: "receiverId", as: "reciever" });
+
+// Before creation of new User Middleware
 UserModel.beforeCreate(async (user: UserModel) => {
   try {
     const hashedPassword = await bcrypt.hash(user.password, 10);
