@@ -8,7 +8,7 @@ import MailBoxList from "./MailBoxList";
 const InboxMails = () => {
   const { token } = JSON.parse(localStorage.getItem("user"));
   const dispatch = useDispatch();
-  const mailsArray = useSelector((state) => state.mail.allMails);
+  const mailsArray = useSelector((state) => state.mail.inboxMails);
 
   const fetchAllMails = async () => {
     try {
@@ -18,7 +18,13 @@ const InboxMails = () => {
           Authorization: token,
         },
       });
-      dispatch(mailAction.setMails(res.data.mails));
+      const inboxMails = res.data.mails.map((mail) => {
+        return {
+          ...mail,
+          mailType: "inboxMails",
+        };
+      });
+      dispatch(mailAction.setInboxMails(inboxMails));
     } catch (error) {
       console.log(error);
     }
@@ -28,7 +34,11 @@ const InboxMails = () => {
     fetchAllMails();
   }, []);
 
-  return <MailBoxList mailsArray={mailsArray} />;
+  return (
+    <>
+      <MailBoxList mailsArray={mailsArray} mailType="inboxMails" />
+    </>
+  );
 };
 
 export default InboxMails;

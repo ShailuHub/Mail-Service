@@ -15,7 +15,7 @@ const ErrorOverlays = (props) => {
     </>
   );
 };
-const AuthError = (props) => {
+const ResponseMessage = (props) => {
   return (
     <>
       {createPortal(
@@ -28,4 +28,4 @@ const AuthError = (props) => {
   );
 };
 
-export default AuthError;
+export default ResponseMessage;

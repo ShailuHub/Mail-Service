@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sent_mail = exports.delete_mail = exports.post_mail = exports.get_inbox = void 0;
+exports.update_mail = exports.sent_mail = exports.delete_mail = exports.post_mail = exports.get_inbox = void 0;
 const mailModel_1 = require("../modals/mailModel");
 const responseHelper_1 = require("../utils/responseHelper");
 const authModel_1 = require("../modals/authModel");
@@ -21,7 +21,14 @@ const get_inbox = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const mails = yield mailModel_1.Mail.findAll({
                 where: { receiverId: userId, receiverDeleted: false },
-                attributes: ["mailId", "subject", "body", "createdAt", "updatedAt"],
+                attributes: [
+                    "mailId",
+                    "subject",
+                    "body",
+                    "isRead",
+                    "createdAt",
+                    "updatedAt",
+                ],
                 include: [{ model: authModel_1.User, as: "sender", attributes: ["email"] }],
             });
             res.status(200).json({ mails });
@@ -72,9 +79,14 @@ exports.post_mail = post_mail;
 const delete_mail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const mailsToDelete = req.body.mailIds;
-        for (let mailId of mailsToDelete) {
-            const result = yield mailModel_1.Mail.update({ receiverDeleted: true }, { where: { mailId } });
-            console.log(result);
+        console.log(mailsToDelete);
+        for (let mail of mailsToDelete) {
+            if (mail.mailType === "inboxMails") {
+                yield mailModel_1.Mail.update({ receiverDeleted: true }, { where: { mailId: mail.mailId } });
+            }
+            else if (mail.mailType === "sentMails") {
+                yield mailModel_1.Mail.update({ senderDeleted: true }, { where: { mailId: mail.mailId } });
+            }
         }
         (0, responseHelper_1.sendMessage)(res, 201, "Mail deleted successfully");
     }
@@ -90,12 +102,12 @@ const sent_mail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (senderId) {
         try {
             const mails = yield mailModel_1.Mail.findAll({
-                where: { senderId },
+                where: { senderId, senderDeleted: false },
                 attributes: ["mailId", "subject", "body", "createdAt", "updatedAt"],
                 include: [
                     {
                         model: authModel_1.User,
-                        as: "sender",
+                        as: "reciever",
                         attributes: ["email"],
                         where: { userId: sequelize_1.Sequelize.col("Mail.receiverId") },
                     },
@@ -111,3 +123,20 @@ const sent_mail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.sent_mail = sent_mail;
+const update_mail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const mailId = req.query.mailId;
+    if (!mailId)
+        return (0, responseHelper_1.sendMessage)(res, 401, "No such mail exists");
+    if (mailId) {
+        try {
+            const updatedMail = yield mailModel_1.Mail.update({ isRead: true }, { where: { mailId: mailId } });
+            res.status(201).json(updatedMail);
+        }
+        catch (error) {
+            console.log(error);
+            const errorMessage = error.message;
+            (0, responseHelper_1.sendError)(res, 500, errorMessage);
+        }
+    }
+});
+exports.update_mail = update_mail;

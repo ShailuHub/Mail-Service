@@ -14,8 +14,10 @@ const SentMails = () => {
       const url = `${baseUrl}/api/mail/sent-mail`;
       const { token } = JSON.parse(localStorage.getItem("user"));
       const res = await Axios.get(url, { headers: { Authorization: token } });
-      console.log(res.data);
-      dispatch(mailAction.setSentMails(res.data.mails));
+      const sentMails = res.data.mails.map((mail) => {
+        return { ...mail, mailType: "sentMails" };
+      });
+      dispatch(mailAction.setSentMails(sentMails));
     } catch (error) {
       console.log(error);
     }
@@ -25,7 +27,7 @@ const SentMails = () => {
     fetchAllMails();
   }, []);
 
-  return <MailBoxList mailsArray={sentMailsArray} />;
+  return <MailBoxList mailsArray={sentMailsArray} mailType="sentMails" />;
 };
 
 export default SentMails;

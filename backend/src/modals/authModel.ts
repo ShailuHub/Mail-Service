@@ -6,7 +6,7 @@ import { Mail } from "./mailModel";
 // UserModel class
 class UserModel extends Model {
   public userId!: number;
-  public userName!: string;
+  public username!: string;
   public email!: string;
   public password!: string;
   public createdAt!: Date;

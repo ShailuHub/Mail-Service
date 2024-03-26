@@ -8,6 +8,8 @@ class MailModel extends Model {
   public subject!: string;
   public body!: string;
   public receiverDeleted!: boolean;
+  public senderDeleted!: boolean;
+  public isRead!: boolean;
   public createdAt!: Date;
   public updatedAt!: Date;
 }
@@ -37,6 +39,16 @@ MailModel.init(
       allowNull: false,
     },
     receiverDeleted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    senderDeleted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    isRead: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,

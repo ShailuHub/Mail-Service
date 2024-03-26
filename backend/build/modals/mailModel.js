@@ -37,4 +37,14 @@ MailModel.init({
         allowNull: false,
         defaultValue: false,
     },
+    senderDeleted: {
+        type: sequelize_1.DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
+    isRead: {
+        type: sequelize_1.DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
 }, { sequelize: database_1.default, modelName: "Mail" });

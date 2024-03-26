@@ -3,15 +3,16 @@ import FormTitle from "./FormTitle";
 import { RiUser3Fill, RiLockPasswordFill } from "react-icons/ri";
 import { AiOutlineMail } from "react-icons/ai";
 import FormButton from "./FormButton";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 import Axios from "axios";
-import AuthError from "../modals/AuthError";
+import AuthError from "../modals/ResponseMessage";
 
 const baseUrl = "http://localhost:3000";
 
 const SignUp = () => {
-  const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
   const usernameRef = useRef();
   const emailRef = useRef();
   const passwordRef = useRef();
@@ -24,24 +25,34 @@ const SignUp = () => {
     try {
       const url = `${baseUrl}/api/user/signup`;
       const res = await Axios.post(url, { username, email, password });
+      setError(res.data);
+      usernameRef.current.value = "";
+      emailRef.current.value = "";
+      passwordRef.current.value = "";
+      setTimeout(() => {
+        setError("");
+        navigate("/auth/signin");
+      }, 3000);
+
       console.log(res);
     } catch (error) {
-      const err = error.response.data.error;
-      setErrorMessage(err);
+      console.log(error.response.data);
+      usernameRef.current.value = "";
+      emailRef.current.value = "";
+      passwordRef.current.value = "";
+      setError(error.response.data);
       setTimeout(() => {
-        setErrorMessage("");
-      }, 2000);
+        setError("");
+      }, 3000);
       console.log(error);
-      usernameRef.current.value;
-      emailRef.current.value;
-      passwordRef.current.value;
     }
   };
   return (
     <>
-      {errorMessage && <AuthError errorMessage={errorMessage} />}
+      {/* {errorMessage && <AuthError errorMessage={errorMessage} />} */}
       <section className="absolute bg-slate-gray shadow-custom-shadow top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] px-8 py-10 rounded-lg w-[23rem]">
         <FormTitle value="SIGN UP" />
+        {error && <AuthError errorMessage={error} />}
         <form>
           <FormInput
             type="text"

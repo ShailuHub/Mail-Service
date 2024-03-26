@@ -7,11 +7,7 @@ const SpecialLink = ({ to, label, Icon, onClick }) => {
       onClick={onClick}
     >
       {Icon && <Icon className="text-white text-xl" />}
-      <NavLink
-        to={to}
-        className="text-white text-xl"
-        activeClassName="active-link"
-      >
+      <NavLink to={to} className="text-white text-xl">
         {label}
       </NavLink>
     </li>

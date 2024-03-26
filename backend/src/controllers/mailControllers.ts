@@ -10,7 +10,14 @@ const get_inbox = async (req: Request, res: Response) => {
     try {
       const mails = await Mail.findAll({
         where: { receiverId: userId, receiverDeleted: false },
-        attributes: ["mailId", "subject", "body", "createdAt", "updatedAt"],
+        attributes: [
+          "mailId",
+          "subject",
+          "body",
+          "isRead",
+          "createdAt",
+          "updatedAt",
+        ],
         include: [{ model: User, as: "sender", attributes: ["email"] }],
       });
       res.status(200).json({ mails });
@@ -55,13 +62,19 @@ const post_mail = async (req: Request, res: Response) => {
 const delete_mail = async (req: Request, res: Response) => {
   try {
     const mailsToDelete = req.body.mailIds;
-
-    for (let mailId of mailsToDelete) {
-      const result = await Mail.update(
-        { receiverDeleted: true },
-        { where: { mailId } }
-      );
-      console.log(result);
+    console.log(mailsToDelete);
+    for (let mail of mailsToDelete) {
+      if (mail.mailType === "inboxMails") {
+        await Mail.update(
+          { receiverDeleted: true },
+          { where: { mailId: mail.mailId } }
+        );
+      } else if (mail.mailType === "sentMails") {
+        await Mail.update(
+          { senderDeleted: true },
+          { where: { mailId: mail.mailId } }
+        );
+      }
     }
 
     sendMessage(res, 201, "Mail deleted successfully");
@@ -76,12 +89,12 @@ const sent_mail = async (req: Request, res: Response) => {
   if (senderId) {
     try {
       const mails = await Mail.findAll({
-        where: { senderId },
+        where: { senderId, senderDeleted: false },
         attributes: ["mailId", "subject", "body", "createdAt", "updatedAt"],
         include: [
           {
             model: User,
-            as: "sender",
+            as: "reciever",
             attributes: ["email"],
             where: { userId: Sequelize.col("Mail.receiverId") },
           },
@@ -96,4 +109,22 @@ const sent_mail = async (req: Request, res: Response) => {
   }
 };
 
-export { get_inbox, post_mail, delete_mail, sent_mail };
+const update_mail = async (req: Request, res: Response) => {
+  const mailId = req.query.mailId;
+  if (!mailId) return sendMessage(res, 401, "No such mail exists");
+  if (mailId) {
+    try {
+      const updatedMail = await Mail.update(
+        { isRead: true },
+        { where: { mailId: mailId } }
+      );
+      res.status(201).json(updatedMail);
+    } catch (error) {
+      console.log(error);
+      const errorMessage = (error as Error).message;
+      sendError(res, 500, errorMessage);
+    }
+  }
+};
+
+export { get_inbox, post_mail, delete_mail, sent_mail, update_mail };

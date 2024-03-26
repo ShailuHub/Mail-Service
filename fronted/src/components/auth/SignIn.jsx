@@ -5,9 +5,10 @@ import { AiOutlineMail } from "react-icons/ai";
 import FormButton from "./FormButton";
 import { Link, useNavigate } from "react-router-dom";
 import Axios from "axios";
-import { useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useRef, useState } from "react"; // Import useState
+import { useDispatch } from "react-redux";
 import { authAction } from "../../store/store";
+import AuthError from "../modals/ResponseMessage"; // Import AuthError component
 
 const baseUrl = "http://localhost:3000";
 
@@ -16,6 +17,7 @@ const SignIn = () => {
   const dispatch = useDispatch();
   const emailRef = useRef();
   const passwordRef = useRef();
+  const [error, setError] = useState(""); // State to manage error
   const handleSignInForm = async (event) => {
     event.preventDefault();
     try {
@@ -36,16 +38,20 @@ const SignIn = () => {
         })
       );
       navigate("/auth/inbox");
-      console.log(message);
     } catch (error) {
-      console.log(error);
+      setError(error.response.data);
       emailRef.current.value = "";
       passwordRef.current.value = "";
+
+      setTimeout(() => {
+        setError("");
+      }, 3000);
     }
   };
   return (
     <section className="absolute bg-slate-gray shadow-custom-shadow top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] px-8 py-10 rounded-lg w-[23rem]">
       <FormTitle value="SIGN IN" />
+      {error && <AuthError errorMessage={error} />}{" "}
       <form>
         <FormInput
           type="email"
