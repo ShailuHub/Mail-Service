@@ -19,7 +19,12 @@ const express_1 = __importDefault(require("express"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const index_1 = require("./routes/index");
 const database_1 = __importDefault(require("./database/database"));
+const http_1 = __importDefault(require("http"));
+const socket_io_1 = require("socket.io");
 const app = (0, express_1.default)();
+const server = http_1.default.createServer(app);
+const io = new socket_io_1.Server(server, { cors: { origin: "http://localhost:5173" } });
+const PORT = Number(process.env.PORT) || 3000;
 //All Middleware
 // Set up body parsing for JSON and form data
 app.use(body_parser_1.default.urlencoded({ extended: true }));
@@ -28,11 +33,10 @@ app.use((0, cors_1.default)());
 // Routes
 app.use("/api/user", index_1.authRouter);
 app.use("/api/mail", index_1.mailRouter);
-const PORT = Number(process.env.PORT) || 3000;
 const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield database_1.default.sync();
-        app.listen(PORT, () => {
+        server.listen(PORT, () => {
             console.log(`Server is working on the port ${PORT}`);
         });
     }

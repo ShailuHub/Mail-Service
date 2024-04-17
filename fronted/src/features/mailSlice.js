@@ -4,6 +4,9 @@ const initialState = {
   inboxMails: [],
   selectedMails: [],
   sentMails: [],
+  totalUnreadMails: 0,
+  displayMailObject: {},
+  showMail: false,
 };
 
 const mailSlice = createSlice({
@@ -12,7 +15,13 @@ const mailSlice = createSlice({
   reducers: {
     setInboxMails: (state, action) => {
       state.inboxMails = action.payload;
+      let count = 0;
+      for (const mail of state.inboxMails) {
+        if (mail.isRead === false) count++;
+      }
+      state.totalUnreadMails = count;
     },
+
     setSelectedMails: (state, action) => {
       state.selectedMails = [...state.selectedMails, action.payload];
     },
@@ -23,6 +32,12 @@ const mailSlice = createSlice({
     },
     setSentMails: (state, action) => {
       state.sentMails = action.payload;
+    },
+    setDisplayMail: (state, action) => {
+      state.displayMailObject = action.payload;
+    },
+    toggleShowMail: (state) => {
+      state.showMail = !state.showMail;
     },
   },
 });

@@ -129,8 +129,13 @@ const update_mail = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         return (0, responseHelper_1.sendMessage)(res, 401, "No such mail exists");
     if (mailId) {
         try {
-            const updatedMail = yield mailModel_1.Mail.update({ isRead: true }, { where: { mailId: mailId } });
-            res.status(201).json(updatedMail);
+            const mail = yield mailModel_1.Mail.findOne({ where: { mailId } });
+            if (mail) {
+                mail.isRead = true;
+                mail.save();
+                console.log(mail);
+                res.status(201).json(mail);
+            }
         }
         catch (error) {
             console.log(error);

@@ -4,6 +4,7 @@ import Axios from "axios";
 import MailBoxList from "./MailBoxList";
 import { mailAction } from "../../store/store";
 import { useEffect } from "react";
+import MailBoxHeader from "./MailBoxHeader";
 
 const SentMails = () => {
   const dispatch = useDispatch();
@@ -27,7 +28,12 @@ const SentMails = () => {
     fetchAllMails();
   }, []);
 
-  return <MailBoxList mailsArray={sentMailsArray} mailType="sentMails" />;
+  return (
+    <>
+      <MailBoxHeader />
+      <MailBoxList mailsArray={sentMailsArray} mailType="sentMails" />;
+    </>
+  );
 };
 
 export default SentMails;

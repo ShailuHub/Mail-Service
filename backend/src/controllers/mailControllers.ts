@@ -62,7 +62,6 @@ const post_mail = async (req: Request, res: Response) => {
 const delete_mail = async (req: Request, res: Response) => {
   try {
     const mailsToDelete = req.body.mailIds;
-    console.log(mailsToDelete);
     for (let mail of mailsToDelete) {
       if (mail.mailType === "inboxMails") {
         await Mail.update(
@@ -114,11 +113,12 @@ const update_mail = async (req: Request, res: Response) => {
   if (!mailId) return sendMessage(res, 401, "No such mail exists");
   if (mailId) {
     try {
-      const updatedMail = await Mail.update(
-        { isRead: true },
-        { where: { mailId: mailId } }
-      );
-      res.status(201).json(updatedMail);
+      const mail = await Mail.findOne({ where: { mailId } });
+      if (mail) {
+        mail.isRead = true;
+        mail.save();
+        res.status(201).json(mail);
+      }
     } catch (error) {
       console.log(error);
       const errorMessage = (error as Error).message;

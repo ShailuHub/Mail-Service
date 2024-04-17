@@ -17,7 +17,7 @@ const authSlice = createSlice({
       state.isLoggedIn = true;
       setTimeout(() => {
         localStorage.removeItem("user");
-      }, 60000);
+      }, 3600000);
     },
     signOut(state) {
       localStorage.removeItem("user");

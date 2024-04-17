@@ -5,6 +5,7 @@ import { editorConfig } from "../../constants/mailbox";
 import Axios from "axios";
 import { baseUrl } from "../../constants/mailbox";
 import ResponseMessage from "../modals/ResponseMessage";
+import socket from "../../socket";
 
 const MailEditor = ({ onCancel }) => {
   const [error, setError] = useState("");
@@ -32,6 +33,8 @@ const MailEditor = ({ onCancel }) => {
         subject,
         body,
       };
+
+      // socket.emit("newMail", { recipientId: to, newMail: { subject, body } });
 
       const url = `${baseUrl}/api/mail/send-mail?receiverEmail=${to}`;
       const { token } = JSON.parse(localStorage.getItem("user"));
